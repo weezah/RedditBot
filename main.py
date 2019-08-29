@@ -28,8 +28,8 @@ while(keepGoing):
 
     url, title, subreddit = links.get_random()
     subreddit = reddit.subreddit(subreddit)    
-    ret = subreddit.submit(title, url=url)    
-    print("{} Posting in {} - {} >>> {}".format(datetime.datetime.now(), subreddit, title, ret))    
+    subreddit.submit(title, url=url)    
+    print("{} Posting in {} - {} >>> {}".format(datetime.datetime.now(), subreddit, title))    
     time.sleep(post_delay.total_seconds())    
     
 
