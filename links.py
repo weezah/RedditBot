@@ -12,7 +12,7 @@ class Links(object):
 
     def get_link(self, idx):
         title = random.choice(self.data[idx]["titles"])
-        url = self.data[idx]["url"]
+        url = random.choice(self.data[idx]["url"])
         subreddit = random.choice(self.data[idx]["subreddits"])
         return url, title, subreddit
 

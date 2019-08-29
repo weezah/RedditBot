@@ -28,7 +28,7 @@ while(keepGoing):
 
     url, title, subreddit = links.get_random()
     subreddit = reddit.subreddit(subreddit)    
-    ret = subreddit.submit(title, url=url)
+    ret = subreddit.submit(title, url=url)    
     print("{} Posting in {} - {} >>> {}".format(datetime.datetime.now(), subreddit, title, ret))    
     time.sleep(post_delay.total_seconds())    
     
