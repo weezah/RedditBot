@@ -1,41 +1,36 @@
 import praw
 import time
 import datetime
+import links
+import msvcrt
 from enum import IntEnum
 
 #config
-start_time = datetime.datetime(2019, 8, 26, 14, 45, 0, 0)
-post_delay = datetime.timedelta(hours=1)
+post_delay = datetime.timedelta(minutes=15)
 
-class LinkData(IntEnum):
-    Subreddit = 0
-    URL = 1
-    Title = 2
-
-f = open('links.txt')
-lines = list(f)
-links = []
-for l in lines:
-    if not l.startswith('#'):
-        links.append(l.split(','))
-        print(l)
-
-
-print('Start at: ', start_time)
-print('Delay: ', post_delay.total_seconds())
-print('Links: ', len(links))
-
+links = links.Links()
 reddit = praw.Reddit('bot')
 
-keepGoing = True
-while(keepGoing):
-    if datetime.datetime.now() > start_time:
-        for current in links:
-            subreddit = reddit.subreddit(current[LinkData.Subreddit])
-            subreddit.submit(current[LinkData.Title], url=current[LinkData.URL])
-            print(datetime.datetime.now())
-            time.sleep(post_delay.total_seconds())
-        keepGoing = False
-    time.sleep(60)
+print('# Delay: ', post_delay.total_seconds())
+print('# Links: ', links.len())
+print('# Enter to stop, L to reload')
 
-print("end")
+keepGoing = True
+while(keepGoing):   
+    
+    if msvcrt.kbhit():
+        key = msvcrt.getch().decode('utf-8')        
+        if key == '\r' or key == '\n':
+            break
+        elif key == 'l':
+            print("> reloading links")
+            links.load()
+
+    url, title, subreddit = links.get_random()
+    subreddit = reddit.subreddit(subreddit)    
+    ret = subreddit.submit(title, url=url)
+    print("{} Posting in {} - {} >>> {}".format(datetime.datetime.now(), subreddit, title, ret))    
+    time.sleep(post_delay.total_seconds())    
+    
+
+print("> End")
