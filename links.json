@@ -1,13 +1,14 @@
 [
     {
-        "url": "www.sfds.com",
+        "type": "video",
+        "content": [
+            "videos/asd.mov"
+        ],
         "subreddits": [
-            "a",
-            "b"
+            "videos"
         ],
         "titles": [
-            "a",
-            "b"
+            "My vid"
         ]
     }
 ]

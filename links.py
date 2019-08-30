@@ -2,36 +2,40 @@ import json
 from random import randrange
 from random import choice
 
-class Links(object):   
+class Links:   
 
-    def __init__(self):
-        self.load()
-        self.last_url = -1
-        self.last_title = -1
+    def __init__(self, file_path):        
         self.last_subreddit = -1
         self.last_link = -1
+        self.file_path = file_path
+        self.load()
     
     def load(self):
-        with open("links.json", "r") as read_file:
-            self.data = json.load(read_file)    
+        with open(self.file_path, "r") as read_file:
+            self.data = json.load(read_file)
 
     def get_link(self, idx):
-        title_idx = self.random_not(self.last_title, len(self.data[idx]["titles"]))
-        self.last_title = title_idx
+        link_type = self.data[idx]["type"]
+
+        last_title = -1 if "last_title" not in self.data[idx] else self.data[idx]["last_title"]
+        title_idx = self.random_not(last_title, len(self.data[idx]["titles"]))
+        self.data[idx]["last_title"] = title_idx
         title = self.data[idx]["titles"][title_idx]
         
-        url_idx = self.random_not(self.last_url, len(self.data[idx]["url"]))
-        self.last_url = url_idx
-        url = self.data[idx]["url"][url_idx]
+        last_content = -1 if "last_content" not in self.data[idx] else self.data[idx]["last_content"]
+        content_idx = self.random_not(last_content, len(self.data[idx]["content"]))
+        self.data[idx]["last_content"] = content_idx
+        content = self.data[idx]["content"][content_idx]
 
-        subreddit_idx = self.random_not(self.last_subreddit, len(self.data[idx]["subreddits"]))
-        self.last_subreddit = subreddit_idx
+        last_subreddit = -1 if "last_subreddit" not in self.data[idx] else self.data[idx]["last_subreddit"]
+        subreddit_idx = self.random_not(last_subreddit, len(self.data[idx]["subreddits"]))
+        self.data[idx]["last_subreddit"] = subreddit_idx
         subreddit = self.data[idx]["subreddits"][subreddit_idx]
-        return url, title, subreddit
+        return link_type, content, title, subreddit
 
     def get_random(self):
-        idx = self.random_not(self.last_link, self.len()) 
-        self.last_link = idx       
+        idx = self.random_not(self.last_link, self.len())
+        self.last_link = idx        
         return self.get_link(idx)
 
     def len(self):
@@ -43,4 +47,5 @@ class Links(object):
         else:
             return choice([i for i in range(0, count) if i not in [last]])
 
-print(Links().get_random())
+#links = Links("links.json")
+#print(links.get_random())
