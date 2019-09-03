@@ -45,7 +45,7 @@ class Links:
 
     def get_random(self):
         idx = self.random_not(self.last_link, self.len())
-        self.last_link = idx        
+        self.last_link = idx
         return self.get_link(idx)
 
     def len(self):
@@ -56,6 +56,3 @@ class Links:
             return choice([i for i in range(0, count)])
         else:
             return choice([i for i in range(0, count) if i not in [last]])
-
-#links = Links("links.json")
-#print(links.get_random())

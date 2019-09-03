@@ -5,22 +5,7 @@ import threading
 import links
 import msvcrt
 from enum import IntEnum
-
-
-# config
-post_delay = datetime.timedelta(minutes=30)
-file_path = "matt.json"
-random_posts = False
-debug = True
-keepGoing = True
-links = links.Links(file_path)
-reddit = praw.Reddit('bot')
-
-print('# Delay: ', post_delay.total_seconds())
-print('# Links: ', links.len())
-print('# Random: ', random_posts)
-print('# Debug: ', debug)
-print('# Enter to stop, L to reload')
+from config import Config
 
 
 def thread_check_key():
@@ -28,7 +13,7 @@ def thread_check_key():
     global links
     while(keepGoing):
         if msvcrt.kbhit():
-            key = msvcrt.getch().decode('utf-8')        
+            key = msvcrt.getch().decode('utf-8')
             if key == '\r' or key == '\n':
                 keepGoing = False
                 exit()                
@@ -40,26 +25,30 @@ def thread_check_key():
 def post(link_type, content, title, sr):
         subreddit = reddit.subreddit(sr)
 
-        if not debug:
+        if not config.debug:
             if link_type == "url":
-                print("Unknown link_type: ", link_type)
                 subreddit.submit(title, url=content)
             elif link_type == "image":
-                print("Unknown link_type: ", link_type)
                 subreddit.submit_image(title, content, timeout=20)
             elif link_type == "video":
                 subreddit.submit_video(title, content, timeout=25)
             else:
                 print("Unknown link_type: ", link_type)
 
-        print("{} Posting in {} - {}".format(datetime.datetime.now(), sr, title))
+        print("{} Posting in {} - {}".format(
+            datetime.datetime.now(), sr, title))
 
 
 def random_post():
     global keepGoing
     while(keepGoing):
-        post(links.get_random())
-        time.sleep(post_delay.total_seconds())
+        link_type, content, title, sr = links.get_random()
+        try:
+            post(link_type, content, title, sr)
+        except praw.exceptions.APIException as err:
+            print(err)
+        finally:
+            time.sleep(config.post_delay.total_seconds())
 
 
 def sequential_post():
@@ -70,15 +59,30 @@ def sequential_post():
             title = links.get_random_title(i)
             content = links.get_random_content(i)
             link_type = links.get_type(i)
-            post(link_type, content, title, r)
+
+            try:
+                post(link_type, content, title, r)
+            except praw.exceptions.APIException as err:
+                print(err)
+            finally:
+                time.sleep(config.post_delay.total_seconds())
     keepGoing = False
 
 
 # main
+keepGoing = True
+config = Config()
+reddit = praw.Reddit(config.praw_profile)
+links = links.Links(config.json_file)
+
+print(config)
+print('# Links found: ', links.len())
+print('# Enter to stop, L to reload')
+
 x = threading.Thread(target=thread_check_key)
 x.start()
 
-if random_posts:
+if config.random_posts:
     random_post()
 else:
     sequential_post()
